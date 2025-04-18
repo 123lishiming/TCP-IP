@@ -10,7 +10,7 @@ typedef  struct _pktblk_t {
     nlist_node_t node; // 链表节点
     int size;         //数据包的大小
     uint8_t *data;   //数据块中的指针
-    uint8_t payload[PKTBUF_BLK_SIZE]; //数据包的实际数据
+    uint8_t payload[PKTBUF_BLK_SIZE]; //数据包的负载
 }pktblk_t; //数据块结构
 
 
@@ -31,8 +31,19 @@ static inline pktblk_t *pktblk_blk_next(pktblk_t *blk) {
     return nlist_entry(next, pktblk_t, node);
 }
 
+
+static inline pktblk_t *pktblk_first_blk (pktbuf_t *buf) {
+    nlist_node_t *first = nlist_first(&buf->blk_list);
+    return nlist_entry(first, pktblk_t, node);
+} 
+
+
+
+
 net_err_t pktbuf_init(void);
 pktbuf_t *pktbuf_alloc(int size);
 void pktbuf_free(pktbuf_t *buf);
 
+net_err_t pktbuf_add_header(pktbuf_t *buf, int size, int cont);
+net_err_t pktbuf_remove_header(pktbuf_t *buf, int size);
 #endif

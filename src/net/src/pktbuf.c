@@ -2,11 +2,60 @@
 #include "mblock.h"
 #include "nlocker.h"
 #include "dbg.h"
+#include "sys_plat.h"
 static nlocker_t locker; // 锁类型
 static pktblk_t block_buffer[PKTBUF_BLK_CNT]; // 数据块缓冲区
 static mblock_t block_list; // 数据块内存块管理器   
 static pktbuf_t pktbuf_buffer[PKTBUF_BUF_CNT]; // 数据包缓冲区
 static mblock_t pktbuf_list; // 数据包内存块管理器
+
+static inline int curr_blk_tail_free(pktblk_t *blk){
+   return (int)((blk->payload +PKTBUF_BLK_SIZE)-(blk->data + blk->size)); // 计算数据块的尾部大小
+}
+
+
+#if DBG_DISP_ENABLED(DBG_BUF)
+static void display_check_buf(pktbuf_t *buf){
+   if(!buf){
+    dbg_error(DBG_BUF, "buf is null\n");
+    return;
+   }
+   plat_printf("check buf %p:size %d\n", buf, buf->total_size); // 打印数据包指针和大小
+   //遍历数据块链表，打印每个数据块的信息
+   pktblk_t *curr;
+   int index = 0, totol_size = 0;
+   for(curr = pktblk_first_blk(buf); curr; curr = pktbuf_blk_next(curr)){
+        plat_printf("%d: ", index++); 
+
+        if(curr->data < curr->payload || curr->data >= curr->payload + PKTBUF_BLK_SIZE){
+            dbg_error(DBG_BUF, "bad data pointer"); // 打印错误信息
+        }
+
+        int pre_size = (int)(curr->data - curr->payload); // 计算数据块的前面大小
+        plat_printf("pre_size:%d b, ", pre_size); // 打印前面大小
+
+        int used_size = curr->size; // 获取数据块的大小
+        plat_printf("used:%d b, ", curr->size); // 打印数据块大小
+
+        int free_size = curr_blk_tail_free(curr); // 计算数据块的尾部大小
+        plat_printf("free:%d b, \n", free_size); // 打印尾部大小
+
+        int blk_total = pre_size + used_size + free_size; // 计算数据块的总大小
+        if(blk_total != PKTBUF_BLK_SIZE){
+            dbg_error(DBG_BUF, "bad block size:%d != %d", blk_total, PKTBUF_BLK_SIZE); // 打印错误信息
+        }
+        totol_size += used_size; // 累加数据块的大小
+    }
+    if(totol_size != buf->total_size){
+        dbg_error(DBG_BUF, "bad total size:%d != %d", totol_size, buf->total_size); // 打印错误信息
+    }
+    plat_printf("check buf done\n");
+   
+}
+#else
+#define display_check_buf(buf)
+#endif
+
 net_err_t pktbuf_init(void){
     dbg_info(DBG_BUF, "init pktbuf\n");
     nlocker_init(&locker, NLOCKER_THREAD); // 初始化锁
@@ -79,7 +128,14 @@ static pktblk_t *pktblock_alloc_list(int size, int add_front){
 }
 
 
-
+static void   pktblock_free_list(pktblk_t *first_blk){
+    // 释放数据块链表
+    while(first_blk){
+        pktblk_t *next_blk = pktblk_blk_next(first_blk); // 获取下一个数据块
+        mblock_free(&block_list, first_blk); // 释放当前数据块
+        first_blk = next_blk; // 更新当前数据块指针
+    }
+}
 
 
 
@@ -119,17 +175,60 @@ pktbuf_t *pktbuf_alloc(int size)
     nlist_init(&buf->blk_list); // 初始化数据包链表
     nodelist_init(&buf->node);
     if(size){
-        pktblk_t *block = pktblock_alloc_list(size, 0); // 分配数据块
+        pktblk_t *block = pktblock_alloc_list(size, 1); // 分配数据块,0是尾插法，1是头插法
         if(!block){
             mblock_free(&pktbuf_list, buf); // 释放数据包内存
             return (pktbuf_t *)0;
         }
         pktbuf_insert_blk_list(buf, block, 1); // 插入数据块到数据包链表
     }
+    display_check_buf(buf);
     return buf; // 返回数据包指针
 
 }
 void pktbuf_free(pktbuf_t *buf)
 {
+    pktblock_free_list(pktblk_first_blk(buf)); // 释放数据包链表中的数据块
+    mblock_free(&pktbuf_list, buf); // 释放数据包内存
+}
 
+
+
+net_err_t pktbuf_add_header(pktbuf_t *buf, int size, int cont)
+{
+    pktblk_t *block = pktblk_first_blk(buf); // 获取数据包链表中的第一个数据块  
+    int resv_size = (int)(block->data -block->payload); // 计算数据块的前面大小
+    if(size <= resv_size){
+        block->size += size; // 更新数据块大小
+        block->data -= size;  // 更新数据块数据指针
+        buf->total_size += size; // 更新数据块总大小
+        display_check_buf(buf); // 检查数据包
+        return NET_ERR_OK; // 返回成功
+    }
+
+    if(cont){
+        if(size > PKTBUF_BLK_SIZE){
+            dbg_error(DBG_BUF, "set cont, size too big: %d > %d", size, PKTBUF_BLK_SIZE); // 打印错误信息
+            return NET_ERR_SIZE; // 返回参数错误
+        }
+        block = pktblock_alloc_list(size, 1); // 分配数据块
+        if(!block){
+            dbg_error(DBG_BUF, "no buffer (size %d)", size); // 打印错误信息
+            return NET_ERR_NONE; // 返回内存不足错误
+        }
+    }else{
+
+    }
+    pktbuf_insert_blk_list(buf, block, 0); // 插入数据块到数据包链表
+    display_check_buf(buf); // 检查数据包
+    return NET_ERR_OK; // 返回成功
+}
+
+
+net_err_t pktbuf_remove_header(pktbuf_t *buf, int size)
+{
+    pktblk_t *block = pktblk_first_blk(buf); // 获取数据包链表中的第一个数据块
+    while(size){
+
+    }
 }

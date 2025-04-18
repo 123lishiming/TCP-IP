@@ -8,6 +8,8 @@ typedef enum {
     NET_ERR_MEM = -2,// Memory allocation error
     NET_ERR_FULL = -3,// Queue full error
     NET_ERR_TMS = -4,// Timeout error
+    NET_ERR_SIZE = -5,// Size error
+    NET_ERR_NONE = -6,// No data error
 } net_err_t;
 
 #endif // __NET_ERR_H__
