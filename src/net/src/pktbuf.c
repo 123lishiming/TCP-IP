@@ -128,14 +128,7 @@ static pktblk_t *pktblock_alloc_list(int size, int add_front){
 }
 
 
-static void   pktblock_free_list(pktblk_t *first_blk){
-    // 释放数据块链表
-    while(first_blk){
-        pktblk_t *next_blk = pktblk_blk_next(first_blk); // 获取下一个数据块
-        mblock_free(&block_list, first_blk); // 释放当前数据块
-        first_blk = next_blk; // 更新当前数据块指针
-    }
-}
+
 
 
 
@@ -186,6 +179,21 @@ pktbuf_t *pktbuf_alloc(int size)
     return buf; // 返回数据包指针
 
 }
+
+
+static void pktblock_free(pktblk_t *blk){
+    mblock_free(&block_list, blk); // 释放数据块内存
+}
+static void  pktblock_free_list(pktblk_t *first_blk){
+    // 释放数据块链表
+    while(first_blk){
+        pktblk_t *next_blk = pktblk_blk_next(first_blk); // 获取下一个数据块
+        pktblock_free(first_blk); // 释放数据块
+        first_blk = next_blk; // 更新当前数据块指针
+    }
+}
+
+
 void pktbuf_free(pktbuf_t *buf)
 {
     pktblock_free_list(pktblk_first_blk(buf)); // 释放数据包链表中的数据块
@@ -229,6 +237,21 @@ net_err_t pktbuf_remove_header(pktbuf_t *buf, int size)
 {
     pktblk_t *block = pktblk_first_blk(buf); // 获取数据包链表中的第一个数据块
     while(size){
+        pktblk_t *next_blk = pktbuf_blk_next(block); // 获取下一个数据块
+        if(size < block->size){
+            block->data += size; // 更新数据块数据指针
+            block->size -= size; // 更新数据块大小
+            buf->total_size -= size; // 更新数据包总大小
+            break;
+        }
+        int curr_size = block->size; // 获取当前数据块大小
+        nlist_remove_first(&buf->blk_list); // 从数据包链表中移除第一个数据块
+        pktblock_free(block); // 释放数据块
 
+        size -= curr_size; // 更新剩余大小
+        buf->total_size -= curr_size; // 更新数据包总大小
+        block = next_blk; // 更新当前数据块指针
     }
+    display_check_buf(buf); // 检查数据包
+    return NET_ERR_OK; // 返回成功
 }
