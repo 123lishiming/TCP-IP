@@ -17,6 +17,8 @@
   dbg_warning(DBG_TEST, "warning");
   dbg_error(DBG_TEST, "error");
   ```
+- **效果图**:
+  ![调试日志输出示例](docs/images/debug_log_example.png)
 
 ---
 
@@ -31,6 +33,8 @@
   nlist_insert_first(&list, &node);
   nlist_remove_first(&list);
   ```
+- **效果图**:
+  ![双向链表操作示例](docs/images/nlist_example.png)
 
 ---
 
@@ -45,6 +49,8 @@
   void *block = mblock_alloc(&blist, -1);
   mblock_free(&blist, block);
   ```
+- **效果图**:
+  ![内存块管理示例](docs/images/mblock_example.png)
 
 ---
 
@@ -59,6 +65,8 @@
   pktbuf_remove_header(buf, 50);
   pktbuf_free(buf);
   ```
+- **效果图**:
+  ![数据包管理示例](docs/images/pktbuf_example.png)
 
 ---
 
@@ -72,6 +80,8 @@
   Client: Hello, Server!
   Server: Hello, Server!
   ```
+- **效果图**:
+  ![TCP 回显服务器示例](docs/images/tcp_echo_server_example.png)
 
 ---
 
