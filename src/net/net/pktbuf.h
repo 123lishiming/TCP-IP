@@ -21,6 +21,11 @@ typedef struct _pktbuf_t{
 
 }pktbuf_t; //数据包结构
 
+
+
+
+
+
 static inline pktblk_t * pktbuf_blk_next(pktblk_t *blk) {
     nlist_node_t * next = nlist_node_next(&blk->node);
     return nlist_entry(next, pktblk_t, node);
@@ -37,6 +42,11 @@ static inline pktblk_t *pktblk_first_blk (pktbuf_t *buf) {
     return nlist_entry(first, pktblk_t, node);
 } 
 
+static inline pktblk_t *pktblk_last_blk (pktbuf_t *buf) {
+    nlist_node_t *last = nlist_last(&buf->blk_list);
+    return nlist_entry(last, pktblk_t, node);
+} 
+
 
 
 
@@ -46,4 +56,5 @@ void pktbuf_free(pktbuf_t *buf);
 
 net_err_t pktbuf_add_header(pktbuf_t *buf, int size, int cont);
 net_err_t pktbuf_remove_header(pktbuf_t *buf, int size);
+net_err_t pktbuf_resize(pktbuf_t *buf, int size);
 #endif

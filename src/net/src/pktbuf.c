@@ -49,7 +49,6 @@ static void display_check_buf(pktbuf_t *buf){
     if(totol_size != buf->total_size){
         dbg_error(DBG_BUF, "bad total size:%d != %d", totol_size, buf->total_size); // 打印错误信息
     }
-    plat_printf("check buf done\n");
    
 }
 #else
@@ -96,6 +95,7 @@ static pktblk_t *pktblock_alloc_list(int size, int add_front){
             return  (pktblk_t *)0;
         }
         int cur_size = 0;
+        // 头插法和尾插法
         if(add_front){
             cur_size = size > PKTBUF_BLK_SIZE ? PKTBUF_BLK_SIZE : size; // 计算当前数据块的大小
             new_block->size = cur_size; // 设置数据块大小
@@ -213,7 +213,7 @@ net_err_t pktbuf_add_header(pktbuf_t *buf, int size, int cont)
         display_check_buf(buf); // 检查数据包
         return NET_ERR_OK; // 返回成功
     }
-
+    // 添加连续包头和非连续包头 
     if(cont){
         if(size > PKTBUF_BLK_SIZE){
             dbg_error(DBG_BUF, "set cont, size too big: %d > %d", size, PKTBUF_BLK_SIZE); // 打印错误信息
@@ -225,7 +225,15 @@ net_err_t pktbuf_add_header(pktbuf_t *buf, int size, int cont)
             return NET_ERR_NONE; // 返回内存不足错误
         }
     }else{
-
+        block->data = block->payload; // 设置数据块数据指针
+        block->size += resv_size; // 更新数据块大小
+        buf->total_size += resv_size; // 更新数据包总大小
+        size -= resv_size; // 更新剩余大小
+        block = pktblock_alloc_list(size, 1); // 分配数据块
+        if(!block){
+            dbg_error(DBG_BUF, "no buffer (size %d)", size); // 打印错误信息
+            return NET_ERR_NONE; // 返回内存不足错误
+        }
     }
     pktbuf_insert_blk_list(buf, block, 0); // 插入数据块到数据包链表
     display_check_buf(buf); // 检查数据包
@@ -254,4 +262,71 @@ net_err_t pktbuf_remove_header(pktbuf_t *buf, int size)
     }
     display_check_buf(buf); // 检查数据包
     return NET_ERR_OK; // 返回成功
+}
+
+net_err_t pktbuf_resize(pktbuf_t *buf, int size){
+    if(size == buf->total_size){
+        return NET_ERR_OK; // 如果大小相等，直接返回成功
+    }
+
+    if(buf->total_size == 0){
+        pktblk_t *block = pktblock_alloc_list(size, 0);
+        if(!block){
+            dbg_error(DBG_BUF, "no buffer (size %d)", size); // 打印错误信息
+            return NET_ERR_NONE; // 返回内存不足错误
+        }
+        pktbuf_insert_blk_list(buf, block, 1); // 插入数据块到数据包链表
+    }else if(size == 0){
+        pktblock_free_list(pktblk_first_blk(buf)); // 释放数据包链表中的数据块
+        buf->total_size = 0; // 更新数据包总大小
+        nlist_init(&buf->blk_list); // 初始化数据包链表
+    }
+    else if(size > buf->total_size){
+        pktblk_t *tail_blk = pktblk_last_blk(buf); // 获取数据包链表中的最后一个数据块
+        int inc_size = size - buf->total_size; // 计算增加的大小
+        int remain_size = curr_blk_tail_free(tail_blk); // 计算数据块的尾部大小
+        if(inc_size <= remain_size){
+            tail_blk->size += inc_size; // 更新数据块大小
+            buf->total_size += inc_size; // 更新数据包总大小
+        }else{
+            pktblk_t *new_block = pktblock_alloc_list(inc_size, 0); // 分配数据块
+            if(!new_block){
+                dbg_error(DBG_BUF, "no buffer (size %d)", inc_size); // 打印错误信息
+                return NET_ERR_NONE; // 返回内存不足错误
+            }
+            tail_blk->size += remain_size; // 更新数据块大小
+            buf->total_size += remain_size; // 更新数据包总大小
+            pktbuf_insert_blk_list(buf, new_block, 1); // 插入数据块到数据包链表
+        }
+    }else{
+        int total_size = 0;
+        pktblk_t *tail_blk;
+        for(tail_blk = pktblk_first_blk(buf); tail_blk; tail_blk = pktblk_blk_next(tail_blk)){
+            total_size += tail_blk->size; // 计算数据块的总大小
+            if(total_size >= size){
+                break; // 如果总大小大于等于目标大小，跳出循环
+            }
+        }
+        if(tail_blk == (pktblk_t *)0){
+            return NET_ERR_SIZE; // 返回参数错误
+        }
+        int total_size_blk = total_size; // 记录数据块的总大小
+
+        pktblk_t *curr_blk = pktbuf_blk_next(tail_blk); // 获取下一个数据块
+        while(curr_blk){
+            pktblk_t *next_blk = pktblk_blk_next(curr_blk); // 获取下一个数据块
+            total_size_blk += curr_blk->size; // 计算数据块的总大小
+            nlist_remove(&buf->blk_list, &curr_blk->node); // 从数据包链表中移除当前数据块
+            pktblock_free(curr_blk); // 释放数据块
+            curr_blk = next_blk; // 更新当前数据块指针
+        }
+       
+        tail_blk->size -=  (total_size - size); // 更新数据块大小
+        buf->total_size = size; // 更新数据包总大小
+
+
+    }
+    display_check_buf(buf); // 检查数据包
+    return NET_ERR_OK; // 返回成功
+
 }

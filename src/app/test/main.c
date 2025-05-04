@@ -171,6 +171,25 @@ void pktbuf_test(){
     for(int i = 0; i <16; i++){
         pktbuf_remove_header(buf, 33);
     }
+
+    for(int i = 0; i <16; i++){
+        pktbuf_add_header(buf, 33, 0);
+    }
+    for(int i = 0; i <16; i++){
+        pktbuf_remove_header(buf, 33);
+    }
+
+    pktbuf_free(buf);
+    buf = pktbuf_alloc(8);
+    pktbuf_resize(buf, 16);
+    pktbuf_resize(buf, 32);
+    pktbuf_resize(buf, 288);
+    pktbuf_resize(buf, 1024);
+    pktbuf_resize(buf, 288);
+    pktbuf_resize(buf, 32);
+    pktbuf_resize(buf, 0);
+    pktbuf_free(buf);
+
 }
 
 
