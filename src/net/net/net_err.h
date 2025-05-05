@@ -10,6 +10,7 @@ typedef enum {
     NET_ERR_TMS = -4,// Timeout error
     NET_ERR_SIZE = -5,// Size error
     NET_ERR_NONE = -6,// No data error
+    NET_ERR_PARAM = -7,// Parameter error
 } net_err_t;
 
 #endif // __NET_ERR_H__

@@ -12,7 +12,18 @@ static mblock_t pktbuf_list; // 数据包内存块管理器
 static inline int curr_blk_tail_free(pktblk_t *blk){
    return (int)((blk->payload +PKTBUF_BLK_SIZE)-(blk->data + blk->size)); // 计算数据块的尾部大小
 }
+static inline int total_blk_remain(pktbuf_t *buf)
+{
+    return buf->total_size -buf->pos; // 计算数据包剩余大小
+}
 
+static inline int remain_blk_size(pktbuf_t *buf){
+    pktblk_t *blk = buf->curr_blk; // 获取当前数据块
+    if(!blk){
+        return 0; // 如果当前数据块为空，返回0
+    }
+    return(int)(blk->data +  blk ->size - buf->offset_blk); // 计算数据块的大小
+}
 
 #if DBG_DISP_ENABLED(DBG_BUF)
 static void display_check_buf(pktbuf_t *buf){
@@ -329,4 +340,133 @@ net_err_t pktbuf_resize(pktbuf_t *buf, int size){
     display_check_buf(buf); // 检查数据包
     return NET_ERR_OK; // 返回成功
 
+}
+
+
+net_err_t pktbuf_join(pktbuf_t *dest, pktbuf_t *src)
+{
+    pktblk_t *first_blk;
+    while((first_blk = pktblk_first_blk(src))){
+        nlist_remove_first(&src->blk_list); // 从源数据包链表中移除第一个数据块
+        pktbuf_insert_blk_list(dest, first_blk, 1); // 插入数据块到目标数据包链表
+    }
+    pktbuf_free(src); // 释放源数据包内存
+    display_check_buf(dest); // 检查目标数据包
+    return NET_ERR_OK; // 返回成功
+}
+
+
+net_err_t pktbuf_set_cont(pktbuf_t *buf, int size){
+    if(size > buf->total_size){
+        dbg_error(DBG_BUF, "size %d > total size %d", size, buf->total_size); // 打印错误信息
+        return NET_ERR_SIZE; // 返回参数错误
+    }
+
+    if(size > PKTBUF_BLK_SIZE){
+        dbg_error(DBG_BUF, "size %d > PKTBUF_BLK_SIZE %d", size, PKTBUF_BLK_SIZE); // 打印错误信息
+        return NET_ERR_SIZE; // 返回参数错误
+    }
+
+    pktblk_t *first_blk = pktblk_first_blk(buf); // 获取数据包链表中的第一个数据块
+
+    if(size <= first_blk->size){
+        display_check_buf(buf); // 检查数据包
+        return NET_ERR_OK; // 如果大小小于等于第一个数据块，直接返回成功
+    }
+    
+    uint8_t *dest = first_blk->payload;  // 设置目标数据块指针
+    for(int i = 0; i < first_blk->size; i++){
+        *dest++ = first_blk->data[i]; // 将数据块中的数据复制到目标数据块中
+    }
+    first_blk->data = first_blk->payload; // 设置数据块数据指针
+
+    int remain_size = size -first_blk->size; // 计算剩余大小
+    pktblk_t *curr_blk = pktbuf_blk_next(first_blk); // 获取下一个数据块
+    while(remain_size && curr_blk){
+        int curr_size = (curr_blk->size > remain_size) ? remain_size : curr_blk->size; // 计算当前数据块的大小
+        plat_memcpy(dest, curr_blk->data, curr_size); // 将数据块中的数据复制到目标数据块中
+        dest += curr_size; // 更新目标数据块指针
+        curr_blk->data += curr_size; // 更新数据块数据指针
+        curr_blk->size -= curr_size; // 更新数据块大小
+        first_blk->size += curr_size; // 更新第一个数据块大小
+        remain_size -= curr_size; // 更新剩余大小
+        if(curr_blk->size == 0){
+            pktblk_t *next_blk = pktblk_blk_next(curr_blk); // 获取下一个数据块
+            nlist_remove(&buf->blk_list, &curr_blk->node); // 从数据包链表中移除当前数据块
+            pktblock_free(curr_blk); // 释放数据块
+            curr_blk = next_blk; // 更新当前数据块指针
+        }
+        
+    }
+    display_check_buf(buf); // 检查数据包
+    return NET_ERR_OK; // 返回成功
+   
+
+
+}
+
+void pktbuf_reset_acc(pktbuf_t *buf)
+{
+    if(buf){
+        buf->pos = 0;
+        buf->curr_blk = pktblk_first_blk(buf); // 获取数据包链表中的第一个数据块
+        buf->offset_blk =buf->curr_blk? buf->curr_blk->data: (uint8_t *)0; // 设置数据块数据指针
+    }
+}
+
+static void move_forward(pktbuf_t *buf, int size)
+{
+    buf->pos += size; // 更新数据包偏移量
+    buf->offset_blk += size; // 更新数据块数据指针 
+    pktblk_t *curr = buf->curr_blk; // 获取当前数据块
+    if(buf->offset_blk >= curr->data + curr->size){
+        buf->curr_blk = pktblk_blk_next(curr); // 获取下一个数据块
+        if(buf->curr_blk){
+            buf->offset_blk = buf->curr_blk->data; // 设置数据块数据指针
+        }else{
+            buf->offset_blk = (uint8_t *)0; // 如果没有下一个数据块，设置数据块数据指针为空
+        }
+    }
+}
+net_err_t pktbuf_write(pktbuf_t *buf, uint8_t *src, int size)
+{
+   if(!src || !size){
+        return NET_ERR_PARAM; // 返回参数错误
+   }
+   int remain_size = total_blk_remain(buf); // 计算剩余大小
+   if(remain_size < size){
+        dbg_error(DBG_BUF, "no buffer for write (%d)", size); // 打印错误信息
+        return NET_ERR_SIZE; // 返回参数错误
+   }
+   while(size){
+    int blk_size = remain_blk_size(buf); // 计算数据块的大小
+    int copy_size = (size > blk_size) ? blk_size : size; // 计算复制的大小
+    plat_memcpy(buf->offset_blk, src, copy_size); // 将数据复制到数据块中
+    src += copy_size; // 更新源数据指针
+    size -= copy_size; // 更新剩余大小
+    move_forward(buf, copy_size); // 更新数据包偏移量和数据块数据指针
+   }
+   return NET_ERR_OK; // 返回成功
+}
+
+
+
+net_err_t  pktbuf_read(pktbuf_t *buf, uint8_t *dest, int size){
+    if(!dest || !size){
+        return NET_ERR_PARAM; // 返回参数错误
+   }
+   int remain_size = total_blk_remain(buf); // 计算剩余大小
+   if(remain_size < size){
+        dbg_error(DBG_BUF, "no buffer for write (%d)", size); // 打印错误信息
+        return NET_ERR_SIZE; // 返回参数错误
+   }
+   while(size > 0){
+    int blk_size = remain_blk_size(buf); // 计算数据块的大小
+    int copy_size = (size > blk_size) ? blk_size : size; // 计算复制的大小
+    plat_memcpy(dest, buf->offset_blk, copy_size); // 将数据复制到数据块中
+    dest += copy_size; // 更新源数据指针
+    size -= copy_size; // 更新剩余大小
+    move_forward(buf, copy_size); // 更新数据包偏移量和数据块数据指针
+   }
+   return NET_ERR_OK; // 返回成功
 }

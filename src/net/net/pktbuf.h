@@ -19,6 +19,9 @@ typedef struct _pktbuf_t{
     nlist_t blk_list; //数据块链表
     nlist_node_t node; //链表节点
 
+    int pos; //数据包的偏移量
+    pktblk_t *curr_blk; //当前数据块指针
+    uint8_t  *offset_blk;
 }pktbuf_t; //数据包结构
 
 
@@ -47,6 +50,9 @@ static inline pktblk_t *pktblk_last_blk (pktbuf_t *buf) {
     return nlist_entry(last, pktblk_t, node);
 } 
 
+static inline int pktbuf_total(pktbuf_t *buf) {
+    return buf->total_size; // 返回数据包的总大小
+}
 
 
 
@@ -57,4 +63,9 @@ void pktbuf_free(pktbuf_t *buf);
 net_err_t pktbuf_add_header(pktbuf_t *buf, int size, int cont);
 net_err_t pktbuf_remove_header(pktbuf_t *buf, int size);
 net_err_t pktbuf_resize(pktbuf_t *buf, int size);
+net_err_t pktbuf_join(pktbuf_t *dest, pktbuf_t *src);
+net_err_t pktbuf_set_cont(pktbuf_t *buf, int size);
+void pktbuf_reset_acc(pktbuf_t *buf);
+net_err_t  pktbuf_write(pktbuf_t *buf, uint8_t *src, int size);
+net_err_t  pktbuf_read(pktbuf_t *buf, uint8_t *dest, int size);
 #endif

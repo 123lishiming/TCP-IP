@@ -190,6 +190,40 @@ void pktbuf_test(){
     pktbuf_resize(buf, 0);
     pktbuf_free(buf);
 
+    buf = pktbuf_alloc(689);
+    pktbuf_t *sbuf = pktbuf_alloc(892);
+    pktbuf_join(buf, sbuf);
+    pktbuf_free(buf);
+
+    buf = pktbuf_alloc(32);
+    pktbuf_join(buf, pktbuf_alloc(4));
+    pktbuf_join(buf, pktbuf_alloc(16));
+    pktbuf_join(buf, pktbuf_alloc(54));
+    pktbuf_join(buf, pktbuf_alloc(32));
+    pktbuf_join(buf, pktbuf_alloc(38));
+    pktbuf_join(buf, pktbuf_alloc(512));
+
+
+    pktbuf_reset_acc(buf);
+    static uint8_t temp[1000];
+    for(int i = 0; i < 1000; i++){
+        temp[i] = i;
+    }
+    pktbuf_write(buf, (uint8_t *)temp, pktbuf_total(buf));
+
+    static uint8_t read_temp[1000];
+    plat_memset(read_temp, 0, sizeof(read_temp)); 
+    pktbuf_reset_acc(buf);
+    pktbuf_read(buf, (uint8_t *)read_temp, pktbuf_total(buf));
+    if(plat_memcmp(temp, read_temp, sizeof(read_temp)) != 0){
+        plat_printf("read data error\n");
+        return;
+    }
+
+
+
+
+
 }
 
 
