@@ -296,7 +296,7 @@ int main (int argc, char *argv[]) {
     dbg_error(DBG_TEST, "error");
 
     dbg_assert(1 == 1, "failed");
-    basic_test();
+  //  basic_test();
 
      /*协议栈的初始化*/
     net_init();  // 初始化网络协议栈

@@ -78,6 +78,6 @@ pktbuf_t *netif_get_in(netif_t *netif, int tmo);
 net_err_t netif_put_out(netif_t *netif, pktbuf_t *pktbuf, int tmo);
 pktbuf_t *netif_get_out(netif_t *netif, int tmo);
 
-net_err_t netif_out(netif_t *netif, ipaddr_t *ipaddr, pktbuf_t *buf);
+net_err_t netif_out(netif_t *netif, ipaddr_t *ipaddr, pktbuf_t *buf); // 发送数据包到指定网络接口
 
 #endif // ! __NETIF_H__

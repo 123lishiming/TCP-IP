@@ -30,8 +30,8 @@ net_err_t ipaddr_from_str(ipaddr_t *dest, const char *str)
         }else{
             return NET_ERR_PARAM; // 返回参数错误
         }
-        *p = sub_addr; // 将子地址赋值给IP地址
     }
+    *p = sub_addr; // 处理最后一个子地址
 
 }
 // net_err_t ipaddr_to_str(ipaddr_t *ip, char *str, int len) // 将IP地址转换为字符串

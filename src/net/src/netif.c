@@ -15,8 +15,6 @@ void display_netif_list(void){
     nlist_node_t *node; 
     nlist_for_each(node, &netif_list){
         netif_t *netif = nlist_entry(node, netif_t, node); // 获取网络接口
-        
-
 
         plat_printf("%s:", netif->name); // 打印网络接口名称
         switch(netif->state){
@@ -202,7 +200,7 @@ void netif_set_default(netif_t *netif)
     netif_default = netif; // 设置默认网络接口
 }
 
-
+// 发送数据包到输入队列
 net_err_t netif_put_in(netif_t *netif, pktbuf_t *pktbuf, int tmo){
     net_err_t err = fixq_send(&netif->in_q, pktbuf, tmo); // 将数据包发送到输入队列
     if(err < 0){
@@ -212,7 +210,7 @@ net_err_t netif_put_in(netif_t *netif, pktbuf_t *pktbuf, int tmo){
     exmsg_netif_in(netif); // 发送网络接口输入消息
     return NET_ERR_OK; // 返回成功
 }
-
+// 从输入队列中接收数据包
 pktbuf_t *netif_get_in(netif_t *netif, int tmo){
     pktbuf_t *buf = fixq_recv(&netif->in_q, tmo); // 从输入队列中接收数据包
     if(buf){
@@ -223,7 +221,7 @@ pktbuf_t *netif_get_in(netif_t *netif, int tmo){
     return (pktbuf_t *)0; // 返回NULL
 }
 
-
+// 发送数据包到输出队列
 net_err_t netif_put_out(netif_t *netif, pktbuf_t *pktbuf, int tmo){
     net_err_t err = fixq_send(&netif->out_q, pktbuf, tmo); // 将数据包发送到输入队列
     if(err < 0){
@@ -232,7 +230,7 @@ net_err_t netif_put_out(netif_t *netif, pktbuf_t *pktbuf, int tmo){
     }
     return NET_ERR_OK; // 返回成功
 }
-
+// 从输出队列中接收数据包
 pktbuf_t *netif_get_out(netif_t *netif, int tmo){
     pktbuf_t *buf = fixq_recv(&netif->out_q, tmo); // 从输入队列中接收数据包
     if(buf){
@@ -252,5 +250,5 @@ net_err_t netif_out(netif_t *netif, ipaddr_t *ipaddr, pktbuf_t *buf)
     if(err < 0){
         dbg_info(DBG_NETIF, "netif out err\n");
     }
-    return netif->ops->xmit(netif); // 调用操作函数发送数据包
+    return netif->ops->xmit(netif);  // 调用底层驱动发送数据包
 }

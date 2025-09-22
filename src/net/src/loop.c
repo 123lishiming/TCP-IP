@@ -18,8 +18,7 @@ static net_err_t loop_xmit(struct _netif_t *netif) {
         if(err < 0){
             pktbuf_free(pktbuf); // 释放数据包
             return err; // 返回错误
-        }d
-
+        }
        
     }
     return NET_ERR_OK;

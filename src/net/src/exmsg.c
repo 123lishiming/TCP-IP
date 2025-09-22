@@ -51,7 +51,7 @@ net_err_t exmsg_init(void) {
     // 返回成功状态
     return NET_ERR_OK;
 }
-
+// 消息处理线程入口函数
 static void exmsg_thread_entry(void *arg)
 {
     dbg_info(DBG_MSG, "exmsg is runing.....\n");
@@ -73,7 +73,7 @@ net_err_t  exmsg_start(void)
 
 }
 
-
+// 构造数据包到达的消息，然后发给工作线程
 net_err_t exmsg_netif_in(netif_t *netif){
     exmsg_t *msg = mblock_alloc(&msg_mblock, -1); // 从内存块中分配一个消息结构体
     if(msg == NULL){
