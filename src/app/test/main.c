@@ -14,6 +14,7 @@
 #include "nlist.h"
 #include "mblock.h"
 #include "pktbuf.h"
+#include "netif.h"
 static int count;
 static sys_sem_t sem;
 static sys_mutex_t mutex;
@@ -205,20 +206,63 @@ void pktbuf_test(){
 
 
     pktbuf_reset_acc(buf);
-    static uint8_t temp[1000];
+    static uint16_t temp[1000];
     for(int i = 0; i < 1000; i++){
         temp[i] = i;
     }
-    pktbuf_write(buf, (uint8_t *)temp, pktbuf_total(buf));
+    pktbuf_write(buf, (uint16_t *)temp, pktbuf_total(buf));
 
-    static uint8_t read_temp[1000];
+    static uint16_t read_temp[1000];
     plat_memset(read_temp, 0, sizeof(read_temp)); 
     pktbuf_reset_acc(buf);
-    pktbuf_read(buf, (uint8_t *)read_temp, pktbuf_total(buf));
-    if(plat_memcmp(temp, read_temp, sizeof(read_temp)) != 0){
+    pktbuf_read(buf, (uint16_t *)read_temp, pktbuf_total(buf));
+    if(plat_memcmp(temp, read_temp, pktbuf_total(buf)) != 0){
         plat_printf("read data error\n");
         return;
     }
+    plat_memset(read_temp, 0, sizeof(read_temp));
+    pktbuf_seek(buf, 18*2);
+    pktbuf_read(buf, (uint16_t *)read_temp, 56);
+    if(plat_memcmp(temp + 18, read_temp, 56) != 0){
+        plat_printf("read data error\n");
+        return;
+    }
+    plat_memset(read_temp, 0, sizeof(read_temp));
+    pktbuf_seek(buf, 85*2);
+    pktbuf_read(buf, (uint16_t *)read_temp, 256);
+    if(plat_memcmp(temp + 85, read_temp, 256) != 0){
+        plat_printf("read data error\n");
+        return;
+    }
+
+
+    pktbuf_t *dest = pktbuf_alloc(1024);
+    pktbuf_seek(dest, 600);
+    pktbuf_seek(buf, 200);
+    pktbuf_copy(dest, buf, 122);
+
+    plat_memset(read_temp, 0, sizeof(read_temp));
+    pktbuf_seek(dest, 600);
+    pktbuf_read(dest, (uint16_t *)read_temp, 122);
+    if(plat_memcmp(temp + 100, read_temp, 122) != 0){
+        plat_printf("read data error\n");
+        return;
+    }
+    pktbuf_seek(dest, 0);
+    pktbuf_fill(dest, 53, pktbuf_total(dest));
+    pktbuf_seek(dest, 0);
+    pktbuf_read(dest, (uint16_t *)read_temp, pktbuf_total(dest));
+    char *temp_ptr = (char *)read_temp;
+    for(int i = 0; i <pktbuf_total(dest); i++){
+        if(temp_ptr[i] != 53){
+            plat_printf("read data error\n");
+            return;
+        }
+    }
+
+
+    pktbuf_free(dest);
+    pktbuf_free(buf);
 
 
 
@@ -233,6 +277,10 @@ void basic_test(void){
     nlist_test();
     mblock_test();
     pktbuf_test();
+    netif_init();
+    loop_init();
+    
+
 }
 
  net_err_t netdev_init(void)

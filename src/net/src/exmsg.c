@@ -74,7 +74,7 @@ net_err_t  exmsg_start(void)
 }
 
 
-net_err_t exmsg_netif_in(void){
+net_err_t exmsg_netif_in(netif_t *netif){
     exmsg_t *msg = mblock_alloc(&msg_mblock, -1); // 从内存块中分配一个消息结构体
     if(msg == NULL){
         dbg_warning(DBG_MSG, "no free msg\n");

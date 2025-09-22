@@ -4,8 +4,11 @@ D:\start\src\app\test\main.c;D:\start\build\net.dir\Debug\main.obj
 D:\start\src\net\src\dbg.c;D:\start\build\net.dir\Debug\dbg.obj
 D:\start\src\net\src\exmsg.c;D:\start\build\net.dir\Debug\exmsg.obj
 D:\start\src\net\src\fixq.c;D:\start\build\net.dir\Debug\fixq.obj
+D:\start\src\net\src\ipaddr.c;D:\start\build\net.dir\Debug\ipaddr.obj
+D:\start\src\net\src\loop.c;D:\start\build\net.dir\Debug\loop.obj
 D:\start\src\net\src\mblock.c;D:\start\build\net.dir\Debug\mblock.obj
 D:\start\src\net\src\net.c;D:\start\build\net.dir\Debug\net.obj
+D:\start\src\net\src\netif.c;D:\start\build\net.dir\Debug\netif.obj
 D:\start\src\net\src\nlist.c;D:\start\build\net.dir\Debug\nlist.obj
 D:\start\src\net\src\nlocker.c;D:\start\build\net.dir\Debug\nlocker.obj
 D:\start\src\net\src\pktbuf.c;D:\start\build\net.dir\Debug\pktbuf.obj

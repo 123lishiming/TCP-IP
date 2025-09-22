@@ -19,6 +19,7 @@ typedef struct _pktbuf_t{
     nlist_t blk_list; //数据块链表
     nlist_node_t node; //链表节点
 
+    int ref; //引用计数
     int pos; //数据包的偏移量
     pktblk_t *curr_blk; //当前数据块指针
     uint8_t  *offset_blk;
@@ -54,7 +55,10 @@ static inline int pktbuf_total(pktbuf_t *buf) {
     return buf->total_size; // 返回数据包的总大小
 }
 
-
+static inline uint8_t *pktbuf_data(pktbuf_t *buf) {
+    pktblk_t *first = pktblk_first_blk(buf); // 获取第一个数据块
+    return first ? first->data : (uint8_t *)0; // 如果没有数据块，则返回NULL
+} 
 
 net_err_t pktbuf_init(void);
 pktbuf_t *pktbuf_alloc(int size);
@@ -67,5 +71,9 @@ net_err_t pktbuf_join(pktbuf_t *dest, pktbuf_t *src);
 net_err_t pktbuf_set_cont(pktbuf_t *buf, int size);
 void pktbuf_reset_acc(pktbuf_t *buf);
 net_err_t  pktbuf_write(pktbuf_t *buf, uint8_t *src, int size);
-net_err_t  pktbuf_read(pktbuf_t *buf, uint8_t *dest, int size);
+net_err_t  pktbuf_read(pktbuf_t *buf, uint8_t *, int size);
+net_err_t  pktbuf_seek(pktbuf_t *buf, int offset);
+net_err_t  pktbuf_copy(pktbuf_t *dest, pktbuf_t *src, int size);
+net_err_t  pktbuf_fill(pktbuf_t *buf, uint8_t v, int size);
+void pktbuf_inc_ref(pktbuf_t *buf); 
 #endif

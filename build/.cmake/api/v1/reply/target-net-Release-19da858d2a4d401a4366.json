@@ -2,10 +2,10 @@
 	"artifacts" : 
 	[
 		{
-			"path" : "RelWithDebInfo/net.exe"
+			"path" : "Release/net.exe"
 		},
 		{
-			"path" : "RelWithDebInfo/net.pdb"
+			"path" : "Release/net.pdb"
 		}
 	],
 	"backtrace" : 1,
@@ -78,7 +78,7 @@
 			"compileCommandFragments" : 
 			[
 				{
-					"fragment" : "/DWIN32 /D_WINDOWS /W3 /MD /Zi /O2 /Ob1 /DNDEBUG"
+					"fragment" : "/DWIN32 /D_WINDOWS /W3 /MD /O2 /Ob2 /DNDEBUG"
 				}
 			],
 			"defines" : 
@@ -133,17 +133,20 @@
 				0,
 				2,
 				4,
-				16,
-				17,
-				18,
 				19,
 				20,
 				21,
 				22,
 				23,
 				24,
+				25,
 				26,
-				28
+				27,
+				28,
+				29,
+				30,
+				32,
+				34
 			]
 		}
 	],
@@ -159,11 +162,11 @@
 		"commandFragments" : 
 		[
 			{
-				"fragment" : "/DWIN32 /D_WINDOWS /W3 /MD /Zi /O2 /Ob1 /DNDEBUG",
+				"fragment" : "/DWIN32 /D_WINDOWS /W3 /MD /O2 /Ob2 /DNDEBUG",
 				"role" : "flags"
 			},
 			{
-				"fragment" : "/machine:x64 /debug /INCREMENTAL",
+				"fragment" : "/machine:x64 /INCREMENTAL:NO",
 				"role" : "flags"
 			},
 			{
@@ -213,17 +216,20 @@
 				0,
 				2,
 				4,
-				16,
-				17,
-				18,
 				19,
 				20,
 				21,
 				22,
 				23,
 				24,
+				25,
 				26,
-				28
+				27,
+				28,
+				29,
+				30,
+				32,
+				34
 			]
 		},
 		{
@@ -243,9 +249,12 @@
 				13,
 				14,
 				15,
-				25,
-				27,
-				29
+				16,
+				17,
+				18,
+				31,
+				33,
+				35
 			]
 		}
 	],
@@ -296,6 +305,16 @@
 		},
 		{
 			"backtrace" : 1,
+			"path" : "src/net/net/ipaddr.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "src/net/net/loop.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
 			"path" : "src/net/net/mblock.h",
 			"sourceGroupIndex" : 1
 		},
@@ -312,6 +331,11 @@
 		{
 			"backtrace" : 1,
 			"path" : "src/net/net/net_err.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "src/net/net/netif.h",
 			"sourceGroupIndex" : 1
 		},
 		{
@@ -355,6 +379,18 @@
 		{
 			"backtrace" : 1,
 			"compileGroupIndex" : 0,
+			"path" : "src/net/src/ipaddr.c",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/net/src/loop.c",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
 			"path" : "src/net/src/mblock.c",
 			"sourceGroupIndex" : 0
 		},
@@ -362,6 +398,12 @@
 			"backtrace" : 1,
 			"compileGroupIndex" : 0,
 			"path" : "src/net/src/net.c",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/net/src/netif.c",
 			"sourceGroupIndex" : 0
 		},
 		{

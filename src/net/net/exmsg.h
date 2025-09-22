@@ -4,7 +4,7 @@
 #include "net_err.h"
 #include "fixq.h"
 #include "nlist.h"
-
+#include "netif.h"
 /*
 作用:
 定义消息模块的接口和数据结构，用于网络协议栈中消息的传递和处理。
@@ -28,6 +28,6 @@ net_err_t exmsg_init(void);
 // 启动消息模块
 net_err_t exmsg_start(void);
 
-net_err_t exmsg_netif_in(void); // 接收网络接口消息
+net_err_t exmsg_netif_in(netif_t *netif); // 接收网络接口消息
 
 #endif // __EXMSG_H__

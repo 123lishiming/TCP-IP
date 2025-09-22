@@ -19,10 +19,19 @@
     <ClCompile Include="D:\start\src\net\src\fixq.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="D:\start\src\net\src\ipaddr.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\start\src\net\src\loop.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="D:\start\src\net\src\mblock.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="D:\start\src\net\src\net.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\start\src\net\src\netif.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="D:\start\src\net\src\nlist.c">
@@ -60,6 +69,12 @@
     <ClInclude Include="D:\start\src\net\net\fixq.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="D:\start\src\net\net\ipaddr.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\start\src\net\net\loop.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="D:\start\src\net\net\mblock.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -70,6 +85,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="D:\start\src\net\net\net_err.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\start\src\net\net\netif.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="D:\start\src\net\net\nlist.h">
