@@ -282,10 +282,26 @@ void basic_test(void){
     
 
 }
-
+pcap_data_t netdev0_data = {.ip = netdev0_phy_ip, .hwaddr=netdev0_hwaddr};
  net_err_t netdev_init(void)
  {
-    netif_pcap_open();
+    dbg_info(DBG_INIT, "netif0_init\n");
+
+    netif_t *netif = netif_open("netif 0", &netdev_ops, &netdev0_data);
+    if (!netif) {
+        dbg_error(DBG_INIT, "open netif err");
+        return NET_ERR_NONE;
+    }
+    // 172.0.0.1 每一个是4个字节，点分十进制，ipv4/ipv6
+    ipaddr_t ip, mask, gw;
+    ipaddr_from_str(&ip, netdev0_ip);
+    ipaddr_from_str(&mask, netdev0_mask);
+    ipaddr_from_str(&gw, netdev0_gw);
+
+
+
+    netif_set_addr(netif, &ip, &mask, &gw);
+    netif_set_active(netif);
     return NET_ERR_OK;
  }
 
@@ -300,8 +316,8 @@ int main (int argc, char *argv[]) {
 
      /*协议栈的初始化*/
     net_init();  // 初始化网络协议栈
-    net_start(); // 启动网络协议栈
     netdev_init(); // 初始化网卡驱动
+    net_start(); // 启动网络协议栈
     while(1){
         sys_sleep(1000);  // 延时1秒
     }

@@ -12,6 +12,7 @@ typedef enum {
     NET_ERR_NONE = -6,// No data error
     NET_ERR_PARAM = -7,// Parameter error
     NET_ERR_STATA = -8,// State error
+    NET_ERR_IO   = -9, // IO error
 } net_err_t;
 
 #endif // __NET_ERR_H__

@@ -1,5 +1,8 @@
 {
     "files.associations": {
+        "*.dbclient-js": "javascript",
+        "*.erd": "json",
+        "*.vuerd": "json",
         "dbg.h": "c",
         "stdint.h": "c",
         "socket.h": "c",
@@ -58,7 +61,8 @@
         "nlocker.h": "c",
         "nlist.h": "c",
         "ipaddr.h": "c",
-        "cstdlib": "c"
+        "cstdlib": "c",
+        "pcap.h": "c"
     },
     "C_Cpp.errorSquiggles": "Disabled",
     "C_Cpp.default.configurationProvider": "ms-vscode.makefile-tools",
