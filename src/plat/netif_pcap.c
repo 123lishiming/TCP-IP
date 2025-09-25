@@ -5,10 +5,28 @@
 //创建两个线程，一个用于接收数据，一个用于发送数据
 static void netif_pcap_recv_thread(void *arg)
 {
+    netif_t *netif = (netif_t *)arg;
+    pcap_t *pcap   = (pcap_t *)netif->ops_data;
     printf("pcap recv thread running\n");
     while(1) {
-        sys_sleep(1);
-        exmsg_netif_in((netif_t *)0);
+        struct pcap_pkthdr * pkthdr;
+        const uint8_t *pkt_data;
+        if(pcap_next_ex(pcap, &pkthdr, &pkt_data) != 1){
+            continue;
+        }
+        pktbuf_t *buf = pktbuf_alloc(pkthdr->len);
+        if(buf == (pktbuf_t*) 0){
+            dbg_warning(DBG_NETIF, "buf ==NULL");
+            continue;
+        }
+        pktbuf_reset_acc(buf);
+        pktbuf_write(buf, (uint8_t *)pkt_data, pkthdr->len);
+        if(netif_put_in(netif, buf, 0) < 0){
+            dbg_warning(DBG_NETIF, "netif %s in_q full", netif->name);
+            pktbuf_free(buf);
+            continue;
+        }
+
     }
 
 }

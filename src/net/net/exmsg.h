@@ -14,13 +14,19 @@
 提供接收网络接口消息的接口：exmsg_netif_in
 
 */
+
+typedef struct _msg_netif_t {
+    netif_t *netif;
+}msg_netif_t;
 typedef struct _exmsg_t {
     nlist_node_t node; // 链表节点
     enum{
         NET_EXMSG_NETIF_IN,
     }type;
+    union{
+          msg_netif_t netif;
+    };
 
-    int id;
 }exmsg_t; // 消息类型
 // 初始化消息模块
 net_err_t exmsg_init(void);

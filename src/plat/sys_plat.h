@@ -19,7 +19,7 @@
 // 系统硬件配置
 // 不同网卡配置，共2块网卡
 #if 1
-static const char netdev0_ip[] = "192.168.245.2";
+static const char netdev0_ip[] = "192.168.245.129";
 static const char netdev0_gw[] = "192.168.245.1";
 static const char friend0_ip[] = "192.168.245.1";
 static const char netdev0_phy_ip[] = "192.168.245.1";    // 用于收发包的真实网卡ip地址，在qemu上不需要使用

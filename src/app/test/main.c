@@ -205,7 +205,7 @@ void pktbuf_test(){
     pktbuf_join(buf, pktbuf_alloc(512));
 
 
-    pktbuf_reset_acc(buf);
+    pktbuf_reset_acc(buf);  
     static uint16_t temp[1000];
     for(int i = 0; i < 1000; i++){
         temp[i] = i;
@@ -312,7 +312,7 @@ int main (int argc, char *argv[]) {
     dbg_error(DBG_TEST, "error");
 
     dbg_assert(1 == 1, "failed");
-  //  basic_test();
+    basic_test();
 
      /*协议栈的初始化*/
     net_init();  // 初始化网络协议栈

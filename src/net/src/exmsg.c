@@ -51,15 +51,40 @@ net_err_t exmsg_init(void) {
     // 返回成功状态
     return NET_ERR_OK;
 }
-// 消息处理线程入口函数
+
+//根据消息类型作相应的处理
+static net_err_t do_netif_in(exmsg_t * msg)
+{
+    netif_t *netif = msg->netif.netif;
+    pktbuf_t *buf;
+    while((buf = netif_get_in(netif, -1))){
+        dbg_info(DBG_MSG, "recv a packet");
+        ///////////
+        pktbuf_free(buf);
+    }
+    return NET_ERR_OK;
+}
+
+
+
+
+// 工作线程，从里面去取数据
 static void exmsg_thread_entry(void *arg)
 {
     dbg_info(DBG_MSG, "exmsg is runing.....\n");
     while(1){
         exmsg_t *msg = (exmsg_t *)fixq_recv(&msg_queue, 0); // 从消息队列中接收消息
-        plat_printf("recv a msg type: %d, id: %d\n", msg->type,msg->id);
+        dbg_info(DBG_MSG, "recv a msg %p: %d\n", msg, msg->type);
+        switch (msg->type)
+        {
+        case NET_EXMSG_NETIF_IN:
+            do_netif_in(msg);
+            break;
+        
+        default:
+            break;
+        }
         mblock_free(&msg_mblock, msg); // 释放消息内存块
-        sys_sleep(1);
     }
 }
 //线程启动函数
@@ -73,16 +98,16 @@ net_err_t  exmsg_start(void)
 
 }
 
-// 构造数据包到达的消息，然后发给工作线程
+// 构造数据包到达的消息，然后发给工作线程,也就是说工作线程接收数据包
 net_err_t exmsg_netif_in(netif_t *netif){
     exmsg_t *msg = mblock_alloc(&msg_mblock, -1); // 从内存块中分配一个消息结构体
     if(msg == NULL){
         dbg_warning(DBG_MSG, "no free msg\n");
         return NET_ERR_MEM;
     }
-    static int id = 0;
+  
     msg->type = NET_EXMSG_NETIF_IN; // 设置消息类型
-    msg->id = id++; // 设置消息ID
+    msg->netif.netif = netif;
 
     net_err_t err = fixq_send(&msg_queue, msg, -1); // 将消息发送到消息队列中
     if(err < 0){
