@@ -16,13 +16,13 @@ static void netif_pcap_recv_thread(void *arg)
         }
         pktbuf_t *buf = pktbuf_alloc(pkthdr->len);
         if(buf == (pktbuf_t*) 0){
-            dbg_warning(DBG_NETIF, "buf ==NULL");
+            dbg_warning(DBG_NETIF, "buf ==NULL\n");
             continue;
         }
         pktbuf_reset_acc(buf);
         pktbuf_write(buf, (uint8_t *)pkt_data, pkthdr->len);
         if(netif_put_in(netif, buf, 0) < 0){
-            dbg_warning(DBG_NETIF, "netif %s in_q full", netif->name);
+            dbg_warning(DBG_NETIF, "netif %s in_q full\n", netif->name);
             pktbuf_free(buf);
             continue;
         }
@@ -35,9 +35,25 @@ static void netif_pcap_recv_thread(void *arg)
 static void netif_pcap_send_thread(void *arg)
 {
     printf("pcap send thread running\n");
+    netif_t *netif = (netif_t *)arg;
+    pcap_t *pcap  = (pcap_t *)netif->ops_data;
+    static uint8_t rw_buffer[1500+6+6+2];  //校验4
     while(1) {
-        // 线程执行的代码
-        sys_sleep(1000);  // 延时1秒
+        pktbuf_t *buf = netif_get_out(netif, 0);
+        if(buf == (pktbuf_t*)0){
+            continue;
+        }
+        
+        int total_size =  buf->total_size;
+        plat_memset(rw_buffer, 0 , sizeof(rw_buffer));
+        pktbuf_read(buf, rw_buffer, total_size);
+        pktbuf_free(buf);
+        // 进行发送
+       if(-1 == pcap_inject(pcap, rw_buffer, total_size)){
+        printf("pcap send failed:%s\n", pcap_geterr(pcap));
+        continue;
+       }
+
     }
 
 }

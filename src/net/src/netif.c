@@ -9,6 +9,9 @@ static netif_t netif_buffer[NETITF_DEV_CNT]; // 网络接口缓冲区
 static mblock_t netif_mblock; // 网络接口内存块
 static nlist_t netif_list; // 网络接口链表
 static netif_t *netif_default; // 默认网络接口
+
+static const link_layer_t* link_layers[NETIF_TYPE_SIZE]; // 链路层数组
+
 #if DBG_DISP_ENABLED(DBG_NETIF)
 void display_netif_list(void){
     plat_printf("netif list:\n");
@@ -61,12 +64,26 @@ net_err_t netif_init(void)
     nlist_init(&netif_list); // 初始化网络接口链表
     mblock_init(&netif_mblock, netif_buffer, sizeof(netif_t), NETITF_DEV_CNT, NLOCKER_NONE); // 初始化网络接口内存块
     netif_default = (netif_t *)0; // 设置默认网络接口为NULL
+    plat_memset((void *)link_layers, 0 , sizeof(link_layers)); // 初始化链路层数组
 
     dbg_info(DBG_NETIF, "init done");
     return NET_ERR_OK;
 
 }
-
+// 注册链路层
+net_err_t netif_register_layer(int type, const link_layer_t *layer)
+{
+    if(type < 0 || type >= NETIF_TYPE_SIZE){
+        dbg_error(DBG_NETIF, "type err");
+        return NET_ERR_PARAM; // 返回参数错误
+    }
+    if(link_layers[type]){
+        dbg_error(DBG_NETIF, "link layer exist");
+        return NET_ERR_EXIST; // 返回已存在错误
+    }
+    link_layers[type] = layer; // 注册链路层
+    return NET_ERR_OK; // 返回成功
+}
 
 netif_t *netif_open(const char *dev_name,  const netif_ops_t *ops, void * ops_data)
 {
@@ -207,7 +224,7 @@ net_err_t netif_put_in(netif_t *netif, pktbuf_t *pktbuf, int tmo){
         dbg_warning(DBG_NETIF, "netif in_q full \n");
         return NET_ERR_FULL; // 返回队列已满
     }
-    exmsg_netif_in(netif); // 发送网络接口输入消息
+    exmsg_netif_in(netif); // 告诉线程当前有数据包到达了
     return NET_ERR_OK; // 返回成功
 }
 // 从输入队列中接收数据包
@@ -250,5 +267,6 @@ net_err_t netif_out(netif_t *netif, ipaddr_t *ipaddr, pktbuf_t *buf)
     if(err < 0){
         dbg_info(DBG_NETIF, "netif out err\n");
     }
+    pktbuf_inc_ref(buf); //增加引用计数，解决pktbuf_free重复释放问题
     return netif->ops->xmit(netif);  // 调用底层驱动发送数据包
 }

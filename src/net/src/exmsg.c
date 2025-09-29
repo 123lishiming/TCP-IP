@@ -58,9 +58,14 @@ static net_err_t do_netif_in(exmsg_t * msg)
     netif_t *netif = msg->netif.netif;
     pktbuf_t *buf;
     while((buf = netif_get_in(netif, -1))){
-        dbg_info(DBG_MSG, "recv a packet");
-        ///////////
-        pktbuf_free(buf);
+        dbg_info(DBG_MSG, "recv a packet\n");
+        pktbuf_fill(buf, 0x11, 6);
+        net_err_t err = netif_out(netif, (ipaddr_t *)0, buf); //发送到发送队列
+        if(err < 0){
+            pktbuf_free(buf);
+        }
+        
+        
     }
     return NET_ERR_OK;
 }
@@ -73,7 +78,7 @@ static void exmsg_thread_entry(void *arg)
 {
     dbg_info(DBG_MSG, "exmsg is runing.....\n");
     while(1){
-        exmsg_t *msg = (exmsg_t *)fixq_recv(&msg_queue, 0); // 从消息队列中接收消息
+        exmsg_t *msg = (exmsg_t *)fixq_recv(&msg_queue, 0); // 从输入队列中接收消息
         dbg_info(DBG_MSG, "recv a msg %p: %d\n", msg, msg->type);
         switch (msg->type)
         {
@@ -109,7 +114,7 @@ net_err_t exmsg_netif_in(netif_t *netif){
     msg->type = NET_EXMSG_NETIF_IN; // 设置消息类型
     msg->netif.netif = netif;
 
-    net_err_t err = fixq_send(&msg_queue, msg, -1); // 将消息发送到消息队列中
+    net_err_t err = fixq_send(&msg_queue, msg, -1); // 将消息发送到消息队列中（工作线程）
     if(err < 0){
         dbg_warning(DBG_MSG, "send msg failed\n");
         mblock_free(&msg_mblock, msg); // 释放消息内存块

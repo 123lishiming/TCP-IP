@@ -20,7 +20,7 @@ typedef enum _netif_type_t {
     NETIF_TYPE_ETHER,
     NETIF_TYPE_LOOP,
 
-    NET_TYPE_SIZE,
+    NETIF_TYPE_SIZE,
 }netif_type_t; 
 
 
@@ -34,7 +34,14 @@ typedef struct _netif_ops_t{
     net_err_t (*xmit) (struct _netif_t *netif); //发送数据
 }netif_ops_t;
 
-
+struct _netif_t;
+typedef struct _link_layer_t{
+    netif_type_t type;
+    net_err_t (*open)(struct _netif_t *netif);
+    void (*close)(struct _netif_t *netif);
+    net_err_t (*in)(struct _netif_t *netif, pktbuf_t * buf);
+    net_err_t (*out)(struct _netif_t *netif,ipaddr_t *dest, pktbuf_t *buf);
+}link_layer_t;
 
 
 // 网络接口名称最大长度
@@ -54,7 +61,9 @@ typedef struct _netif_t {
     }state;
 
     const netif_ops_t *ops; // 网络接口操作函数指针
-    void *ops_data; // 网络接口操作函数参数
+    void *ops_data;  // 网络接口操作函数参数
+    const link_layer_t *link_layer; // 以太网和无线wifi的函数指针
+
 
 
     nlist_node_t node; // 链表节点
@@ -79,5 +88,7 @@ net_err_t netif_put_out(netif_t *netif, pktbuf_t *pktbuf, int tmo);
 pktbuf_t *netif_get_out(netif_t *netif, int tmo);
 
 net_err_t netif_out(netif_t *netif, ipaddr_t *ipaddr, pktbuf_t *buf); // 发送数据包到指定网络接口
+
+net_err_t netif_register_layer(int type, const link_layer_t *layer);
 
 #endif // ! __NETIF_H__

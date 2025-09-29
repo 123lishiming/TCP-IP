@@ -1,6 +1,10 @@
 # cmake最低版本要求
-cmake_minimum_required(VERSION 3.7.0)
 
+cmake_minimum_required(VERSION 3.7.0)
+set(CMAKE_COLOR_DIAGNOSTICS ON)
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    add_compile_options(-fdiagnostics-color=always)
+endif()
 # 设置工程的名字，生成的可执行文件也将使用该名称，如net.exe
 project(net)
 set(CMAKE_C_STANDARD 99)

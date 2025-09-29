@@ -46,8 +46,6 @@ net_err_t loop_init(void) {
 
     netif_set_addr(netif, &ip, &mask, (ipaddr_t *)0);
     netif_set_active(netif);
-    pktbuf_t *pktbuf = pktbuf_alloc(100);
-    netif_out(netif, (ipaddr_t *)0, pktbuf); // 发送数据包
     dbg_info(DBG_INIT, "init done\n");
     return NET_ERR_OK;
 }
