@@ -15,6 +15,7 @@
 #include "mblock.h"
 #include "pktbuf.h"
 #include "netif.h"
+#include "ether.h"
 static int count;
 static sys_sem_t sem;
 static sys_mutex_t mutex;
@@ -285,6 +286,8 @@ void basic_test(void){
 pcap_data_t netdev0_data = {.ip = netdev0_phy_ip, .hwaddr=netdev0_hwaddr};
  net_err_t netdev_init(void)
  {
+    int size = sizeof(ether_hdr_t);
+    int buf_size = sizeof(ether_pkt_t);
     dbg_info(DBG_INIT, "netif0_init\n");
 
     netif_t *netif = netif_open("netif 0", &netdev_ops, &netdev0_data);

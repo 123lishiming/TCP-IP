@@ -2,6 +2,7 @@
 #include "exmsg.h"
 #include "sys_plat.h"
 #include "pcap.h"
+#include "ether.h"
 //创建两个线程，一个用于接收数据，一个用于发送数据
 static void netif_pcap_recv_thread(void *arg)
 {
@@ -67,7 +68,7 @@ static net_err_t netif_pcap_open(struct _netif_t *netif, void *data) {
         return NET_ERR_IO;
     }
     netif->type = NETIF_TYPE_ETHER;
-    netif->mtu  = 1500;
+    netif->mtu  = ETHER_MIU;
     netif->ops_data = pcap;
     netif_set_hwaddr(netif, dev_data->hwaddr, 6);
 
