@@ -85,6 +85,15 @@ net_err_t netif_register_layer(int type, const link_layer_t *layer)
     return NET_ERR_OK; // 返回成功
 }
 
+static const link_layer_t *netif_get_layer(int type)
+{
+    if(type < 0 || type >= NETIF_TYPE_SIZE){
+        dbg_error(DBG_NETIF, "type err");
+        return (const link_layer_t *)0; // 返回NULL
+    }
+    return link_layers[type]; // 返回链路层
+}
+
 netif_t *netif_open(const char *dev_name,  const netif_ops_t *ops, void * ops_data)
 {
     netif_t *netif = (netif_t *)mblock_alloc(&netif_mblock, -1); // 分配网络接口内存块
@@ -130,6 +139,12 @@ netif_t *netif_open(const char *dev_name,  const netif_ops_t *ops, void * ops_da
         dbg_error(DBG_NETIF, "netif type is none\n");
         goto free_return; // 网卡类型为NONE
     }
+    netif->link_layer = netif_get_layer(netif->type); // 获取链路层
+    // 链路层不能为空,除非是环回网卡
+    if(!netif->link_layer && netif->type != NETIF_TYPE_LOOP){
+        dbg_error(DBG_NETIF, "netif link layer,netif name is %s\n", dev_name);
+        goto free_return; // 链路层为空
+    }
     nlist_insert_last(&netif_list, &netif->node); // 将网卡添加到链表中
     display_netif_list(); // 显示网卡列表
     return netif;
@@ -169,6 +184,13 @@ net_err_t netif_set_active(netif_t *netif)
     if(!netif_default && (netif->type != NETIF_TYPE_LOOP)){
         netif_set_default(netif); // 设置默认网络接口
     }
+    if(netif->link_layer){
+        net_err_t err = netif->link_layer->open(netif); // 打开链路层
+        if(err < 0){
+            dbg_error(DBG_NETIF, "netif link layer open err\n");
+            return err; // 返回错误
+        }
+    }
     netif->state = NETIF_ACTIVE; // 设置网卡状态为活动
     display_netif_list(); // 显示网卡列表
     return NET_ERR_OK;  //  返回成功
@@ -180,6 +202,11 @@ net_err_t netif_set_deactive(netif_t *netif)
         dbg_error(DBG_NETIF, "netif state is not opened\n");
         return NET_ERR_STATA; // 返回参数错误
     }
+
+    if(netif->link_layer){
+        netif->link_layer->close(netif); // 关闭链路层
+    }
+
     pktbuf_t *pktbuf;
     while((pktbuf = fixq_recv(&netif->in_q, -1)) != (pktbuf_t *)0){ // 从输入队列中接收数据包
         pktbuf_free(pktbuf); // 释放数据包

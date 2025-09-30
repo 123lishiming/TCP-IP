@@ -334,6 +334,7 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ClInclude Include="D:\start\src\app\echo\tcp_echo_server.h" />
     <ClCompile Include="D:\start\src\app\test\main.c" />
     <ClInclude Include="D:\start\src\net\net\dbg.h" />
+    <ClInclude Include="D:\start\src\net\net\ether.h" />
     <ClInclude Include="D:\start\src\net\net\exmsg.h" />
     <ClInclude Include="D:\start\src\net\net\fixq.h" />
     <ClInclude Include="D:\start\src\net\net\ipaddr.h" />
@@ -348,6 +349,7 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ClInclude Include="D:\start\src\net\net\pktbuf.h" />
     <ClInclude Include="D:\start\src\net\net\sys.h" />
     <ClCompile Include="D:\start\src\net\src\dbg.c" />
+    <ClCompile Include="D:\start\src\net\src\ether.c" />
     <ClCompile Include="D:\start\src\net\src\exmsg.c" />
     <ClCompile Include="D:\start\src\net\src\fixq.c" />
     <ClCompile Include="D:\start\src\net\src\ipaddr.c" />

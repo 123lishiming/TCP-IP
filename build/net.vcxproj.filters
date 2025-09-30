@@ -13,6 +13,9 @@
     <ClCompile Include="D:\start\src\net\src\dbg.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="D:\start\src\net\src\ether.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="D:\start\src\net\src\exmsg.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -61,6 +64,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="D:\start\src\net\net\dbg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\start\src\net\net\ether.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="D:\start\src\net\net\exmsg.h">
