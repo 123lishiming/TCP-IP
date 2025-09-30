@@ -11,6 +11,7 @@ typedef struct _ether_hdr_t {
 }ether_hdr_t;
 ```
 <h2 style="color: red;">解决方法</h2>
+
 ```c
 #pragma pack(1)
 // 定义包头
