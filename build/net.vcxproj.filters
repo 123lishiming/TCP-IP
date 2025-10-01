@@ -46,6 +46,9 @@
     <ClCompile Include="D:\start\src\net\src\pktbuf.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="D:\start\src\net\src\tools.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="D:\start\src\plat\net_plat.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -106,6 +109,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="D:\start\src\net\net\sys.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\start\src\net\net\tools.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="D:\start\src\plat\net_plat.h">

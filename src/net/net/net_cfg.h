@@ -9,7 +9,9 @@
 #define DBG_PLAT   DBG_LEVEL_INFO
 #define DBG_NETIF  DBG_LEVEL_INFO
 #define DBG_ETHER  DBG_LEVEL_INFO
+#define DGB_TOOLS  DBG_LEVEL_INFO
 
+#define NET_ENDIAN_LITTLE  1 // 大小端模式
 
 #define EXMSG_MSG_CNT  10 // 消息数量
 #define EXMSG_LOCKER NLOCKER_THREAD // 消息锁类型

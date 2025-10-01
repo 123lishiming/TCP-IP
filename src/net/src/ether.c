@@ -15,9 +15,34 @@ void ether_close(struct _netif_t *netif)
 
 }
 
+
+// 包的检查
+static net_err_t is_pkt_ok (ether_pkt_t *frame, int totalsize)
+{
+    if(totalsize > (sizeof(ether_hdr_t) + ETHER_MIU)){
+        dbg_warning(DBG_ETHER, "frame size too big: %d");
+        return NET_ERR_SIZE;
+    }
+    if(totalsize < sizeof(ether_hdr_t))
+    {
+        dbg_warning(DBG_ETHER, "frame size too big: %d");
+        return NET_ERR_SIZE;
+    }
+    return NET_ERR_OK;
+}
+
 // 输入数据包
 net_err_t ether_in(struct _netif_t *netif, pktbuf_t * buf)
 {
+    dbg_info(DBG_ETHER, "ether in");
+    ether_pkt_t *pkt = (ether_pkt_t*)pktbuf_data(buf);
+    net_err_t err;
+    if((err = is_pkt_ok(pkt, buf->total_size)) < 0)
+    {
+        dbg_warning(DBG_ETHER, "ether pkt error");
+        return err;
+    }
+    pktbuf_free(buf);
     return NET_ERR_OK;
 }
 
