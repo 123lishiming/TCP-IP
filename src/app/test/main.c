@@ -307,6 +307,9 @@ pcap_data_t netdev0_data = {.ip = netdev0_phy_ip, .hwaddr=netdev0_hwaddr};
 
     netif_set_addr(netif, &ip, &mask, &gw);
     netif_set_active(netif);
+    pktbuf_t *buf = pktbuf_alloc(32); 
+    pktbuf_fill(buf,0x53,32);
+    netif_out(netif, (ipaddr_t *)0, buf);  //放到输出队列
     return NET_ERR_OK;
  }
 

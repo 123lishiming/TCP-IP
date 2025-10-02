@@ -176,5 +176,77 @@ int main() {
    - 小端：`*ptr = 0x78`（低字节）
    - 大端：`*ptr = 0x12`（高字节）
 
+## PCAP导致ARP请求的原因分析
+
+### 你的观察是正确的！
+
+**Wireshark显示：**
+```
+30  10.472508  VMware_c0:00:08  Broadcast  ARP  42  Who has 192.168.245.2? Tell 192.168.245.1
+```
+
+**这确实是由于调用PCAP导致的！** 
+
+### 为什么PCAP会触发ARP请求？
+
+**1. 网卡激活过程**
+```c
+// 在 pcap_device_open() 中
+if (pcap_activate(pcap) != 0) {
+    // 激活网卡时，系统会：
+    // - 网卡从down变为up状态
+    // - 自动进行网络发现
+    // - 发送ARP请求确认网络拓扑
+}
+```
+
+**2. 混杂模式设置**
+```c
+if (pcap_set_promisc(pcap, 1) != 0) {
+    // 设置混杂模式时会重新初始化网卡
+    // 可能触发网络状态变化
+}
+```
+
+**3. IP冲突检测**
+- 当协议栈尝试使用IP `192.168.245.2` 时
+- 系统执行 **免费ARP (Gratuitous ARP)** 检测
+- 确认该IP是否已被其他设备使用
+
+### 具体触发时机
+
+```c
+// 调用链：main() → netif_open() → netif_pcap_open() → pcap_device_open()
+static net_err_t netif_pcap_open(struct _netif_t *netif, void *data) {
+    pcap_t * pcap = pcap_device_open(dev_data->ip, dev_data->hwaddr);
+    // ↑ 这里激活PCAP设备，触发ARP请求
+    
+    // 启动接收线程
+    netif->recv_thread = sys_thread_create(netif_pcap_recv_thread, netif);
+    // 启动发送线程  
+    netif->send_thread = sys_thread_create(netif_pcap_send_thread, netif);
+}
+```
+
+### 这是正常现象！
+
+**✅ 这种ARP请求完全正常：**
+
+1. **网络发现** - 探测网络中的设备
+2. **IP冲突检测** - 避免IP地址冲突
+3. **ARP表构建** - 为后续通信准备MAC地址映射
+4. **网络状态同步** - 通知其他设备网卡已激活
+
+### 观察要点
+
+**接下来你应该关注：**
+- 是否收到ARP回复 (`192.168.245.2 is at xx:xx:xx:xx:xx:xx`)
+- 协议栈是否正确解析收到的ARP包
+- 是否能建立完整的ARP表项
+
+**这说明你的网络协议栈工作正常！** PCAP成功激活网络接口，开始真正的网络通信。
+
 
 #define PKTBUF_BLK_SIZE  128 // 数据块大小如果数据块太小，那么数据包可能不是连续的
+
+

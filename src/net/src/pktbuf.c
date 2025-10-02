@@ -221,6 +221,9 @@ pktbuf_t *pktbuf_alloc(int size)
         }
         pktbuf_insert_blk_list(buf, block, 1); // 插入数据块到数据包链表
     }
+    // 设置当前读写情况以及引用情况
+    buf->ref = 1;
+    pktbuf_reset_acc(buf);
     display_check_buf(buf);
     return buf; // 返回数据包指针
 
@@ -477,11 +480,12 @@ net_err_t pktbuf_write(pktbuf_t *buf, uint8_t *src, int size)
    }
    while(size){
     int blk_size = curr_remain_size(buf); // 计算数据块的大小
+
     int copy_size = (size > blk_size) ? blk_size : size; // 计算复制的大小
     plat_memcpy(buf->offset_blk, src, copy_size); // 将数据复制到数据块中
+     move_forward(buf, copy_size); // 更新数据包偏移量和数据块数据指针
     src += copy_size; // 更新源数据指针
     size -= copy_size; // 更新剩余大小
-    move_forward(buf, copy_size); // 更新数据包偏移量和数据块数据指针
    }
    return NET_ERR_OK; // 返回成功
 }

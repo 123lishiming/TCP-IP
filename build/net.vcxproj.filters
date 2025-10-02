@@ -108,6 +108,9 @@
     <ClInclude Include="D:\start\src\net\net\pktbuf.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="D:\start\src\net\net\protocol.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="D:\start\src\net\net\sys.h">
       <Filter>Header Files</Filter>
     </ClInclude>

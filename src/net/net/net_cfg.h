@@ -21,6 +21,8 @@
 #define PKTBUF_BLK_CNT   100 // 数据块数量
 #define PKTBUF_BUF_CNT   100
 
+
+
 #define NETIF_NAME_MAX  10 // 网络接口名称最大长度
 #define NETIF_HWADDR_SIZE  10 // 硬件地址长度
 #define NETIF_INO_SIZE  50 // 输入队列大小
@@ -28,5 +30,6 @@
 
 #define NETIF_QUTO_SIZE  50 // 网络接口队列大小
 #define NETITF_DEV_CNT   20 // 网络接口设备数量
+#define ETHER_DATA_MINSIZE 46 // 以太网数据最小长度
 
 #endif

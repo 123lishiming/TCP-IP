@@ -20,7 +20,7 @@ static void netif_pcap_recv_thread(void *arg)
             dbg_warning(DBG_NETIF, "buf ==NULL\n");
             continue;
         }
-        pktbuf_reset_acc(buf);
+        
         pktbuf_write(buf, (uint8_t *)pkt_data, pkthdr->len);
         if(netif_put_in(netif, buf, 0) < 0){
             dbg_warning(DBG_NETIF, "netif %s in_q full\n", netif->name);

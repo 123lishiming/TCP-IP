@@ -347,6 +347,7 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ClInclude Include="D:\start\src\net\net\nlist.h" />
     <ClInclude Include="D:\start\src\net\net\nlocker.h" />
     <ClInclude Include="D:\start\src\net\net\pktbuf.h" />
+    <ClInclude Include="D:\start\src\net\net\protocol.h" />
     <ClInclude Include="D:\start\src\net\net\sys.h" />
     <ClInclude Include="D:\start\src\net\net\tools.h" />
     <ClCompile Include="D:\start\src\net\src\dbg.c" />

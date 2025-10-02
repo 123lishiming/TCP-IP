@@ -5,6 +5,8 @@
 #include "pktbuf.h"
 #include "nlist.h"
 #include "exmsg.h"
+#include "protocol.h"
+#include "ether.h"
 static netif_t netif_buffer[NETITF_DEV_CNT]; // 网络接口缓冲区
 static mblock_t netif_mblock; // 网络接口内存块
 static nlist_t netif_list; // 网络接口链表
@@ -290,10 +292,20 @@ pktbuf_t *netif_get_out(netif_t *netif, int tmo){
 net_err_t netif_out(netif_t *netif, ipaddr_t *ipaddr, pktbuf_t *buf)
 {
     // 发送数据包到输出队列
-    net_err_t err = netif_put_out(netif, buf, -1); // 将数据包发送到输出队列
-    if(err < 0){
-        dbg_info(DBG_NETIF, "netif out err\n");
+    if(netif->link_layer)
+    {
+        net_err_t err = ether_raw_out(netif, NET_PROTOCOL_ARP,ether_board_cast_addr(), buf);
+        if(err < 0){
+            dbg_warning(DBG_NETIF, "netif link out err");
+            return err;
+        }
     }
-    pktbuf_inc_ref(buf); //增加引用计数，解决pktbuf_free重复释放问题
-    return netif->ops->xmit(netif);  // 调用底层驱动发送数据包
+    else{
+        net_err_t err = netif_put_out(netif, buf, -1); // 将数据包发送到输出队列
+        if(err < 0){
+        dbg_info(DBG_NETIF, "netif out err\n");
+        }
+        pktbuf_inc_ref(buf); //增加引用计数，解决pktbuf_free重复释放问题
+        return netif->ops->xmit(netif);  // 调用底层驱动发送数据包
+    }
 }

@@ -33,16 +33,11 @@ void dbg_print(int m_level, int s_level, const char *file, const char *func, int
 
 void dbg_dump_hwaddr(const char *msg, const uint8_t *hwaddr, int len)
 {
-    if(msg){
+    if (msg) {
         plat_printf("%s", msg);
     }
-    if(len){
-    for(int i = 0 ; i < len; i++){
-        plat_printf("%02x-", hwaddr[i]); // 打印硬件地址)
-        }
-    }else{
-        plat_printf("none ");
-    }
+
+    plat_printf("%02x-%02x-%02x-%02x-%02x-%02x\n", hwaddr[0], hwaddr[1], hwaddr[2], hwaddr[3], hwaddr[4], hwaddr[5]);
 }
 void dbg_dump_ip(const char *msg, const ipaddr_t *ipaddr)
 {

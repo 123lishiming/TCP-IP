@@ -2,14 +2,14 @@
 #define __ETHER_H__
 #include "net_err.h"
 #include <stdint.h>
-
+#include "netif.h"
 #define ETHER_HWA_SIZE 6
 #define ETHER_MIU 1500
 #pragma pack(1)
 // 定义包头
 typedef struct _ether_hdr_t {
-    uint8_t dest[ETHER_HWA_SIZE];
-    uint8_t src[ETHER_HWA_SIZE];
+    uint8_t dest[ETHER_HWA_SIZE];  //目标MAC
+    uint8_t src[ETHER_HWA_SIZE];  //源MAC
     uint16_t protocal; //可能当作四字节处理，结构体对齐问题(此时应该禁用自动填充对齐才能解析正确)
 }ether_hdr_t;
 
@@ -20,4 +20,6 @@ typedef struct _ether_pkt_t {
 }ether_pkt_t;
 #pragma pack()
 net_err_t ether_init();
+const  uint8_t *ether_board_cast_addr(void);
+net_err_t ether_raw_out(netif_t * netif, uint16_t protocol, const uint8_t *dest, pktbuf_t *buf);
 #endif
