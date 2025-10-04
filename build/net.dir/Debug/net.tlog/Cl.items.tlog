@@ -13,6 +13,7 @@ D:\start\src\net\src\netif.c;D:\start\build\net.dir\Debug\netif.obj
 D:\start\src\net\src\nlist.c;D:\start\build\net.dir\Debug\nlist.obj
 D:\start\src\net\src\nlocker.c;D:\start\build\net.dir\Debug\nlocker.obj
 D:\start\src\net\src\pktbuf.c;D:\start\build\net.dir\Debug\pktbuf.obj
+D:\start\src\net\src\timer.c;D:\start\build\net.dir\Debug\timer.obj
 D:\start\src\net\src\tools.c;D:\start\build\net.dir\Debug\tools.obj
 D:\start\src\plat\net_plat.c;D:\start\build\net.dir\Debug\net_plat.obj
 D:\start\src\plat\netif_pcap.c;D:\start\build\net.dir\Debug\netif_pcap.obj

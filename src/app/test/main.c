@@ -17,6 +17,7 @@
 #include "netif.h"
 #include "ether.h"
 #include "tools.h"
+#include "timer.h"
 static int count;
 static sys_sem_t sem;
 static sys_mutex_t mutex;
@@ -266,14 +267,46 @@ void pktbuf_test(){
     pktbuf_free(dest);
     pktbuf_free(buf);
 
+}
 
 
+void timer0_proc(struct _net_timer_t *timer, void *arg)
+{
+    static int count = 1;
+    printf("this is %s: %d\n", timer->name, count);
+}
 
+void timer1_proc(struct _net_timer_t *timer, void *arg)
+{
+    static int count = 1;
+    printf("this is %s: %d\n", timer->name, count++);
+}
 
+void timer2_proc(struct _net_timer_t *timer, void *arg)
+{
+    static int count = 1;
+    printf("this is %s: %d\n", timer->name, count++);
+}
+
+void timer3_proc(struct _net_timer_t *timer, void *arg)
+{
+    static int count = 1;
+    printf("this is %s: %d\n", timer->name, count++);
 }
 
 
 
+void timer_test()
+{
+    static net_timer_t t0,t1,t2,t3;
+    net_timer_add(&t0, "t0", timer0_proc,(void*)0, 200, 0);
+    net_timer_add(&t3, "t3", timer3_proc,(void*)0, 4000, NET_TIMER_RELOAD);
+    net_timer_add(&t1, "t1", timer1_proc,(void*)0, 1000, NET_TIMER_RELOAD);
+    net_timer_add(&t2, "t2", timer2_proc,(void*)0, 1000, NET_TIMER_RELOAD);
+   
+  
+
+}
 
 void basic_test(void){
     nlist_test();
@@ -283,6 +316,8 @@ void basic_test(void){
     loop_init();
     uint32_t v1 = x_ntohl(0x12345678);
     uint16_t v2 = x_ntohs(0x1234);
+
+    timer_test();
 
 }
 pcap_data_t netdev0_data = {.ip = netdev0_phy_ip, .hwaddr=netdev0_hwaddr};
@@ -320,7 +355,7 @@ int main (int argc, char *argv[]) {
     dbg_error(DBG_TEST, "error");
 
     dbg_assert(1 == 1, "failed");
- //a   basic_test();
+    basic_test();
 
      /*协议栈的初始化*/
     net_init();  // 初始化网络协议栈

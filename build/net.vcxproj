@@ -349,6 +349,7 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ClInclude Include="D:\start\src\net\net\pktbuf.h" />
     <ClInclude Include="D:\start\src\net\net\protocol.h" />
     <ClInclude Include="D:\start\src\net\net\sys.h" />
+    <ClInclude Include="D:\start\src\net\net\timer.h" />
     <ClInclude Include="D:\start\src\net\net\tools.h" />
     <ClCompile Include="D:\start\src\net\src\dbg.c" />
     <ClCompile Include="D:\start\src\net\src\ether.c" />
@@ -362,6 +363,7 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ClCompile Include="D:\start\src\net\src\nlist.c" />
     <ClCompile Include="D:\start\src\net\src\nlocker.c" />
     <ClCompile Include="D:\start\src\net\src\pktbuf.c" />
+    <ClCompile Include="D:\start\src\net\src\timer.c" />
     <ClCompile Include="D:\start\src\net\src\tools.c" />
     <ClCompile Include="D:\start\src\plat\net_plat.c" />
     <ClInclude Include="D:\start\src\plat\net_plat.h" />

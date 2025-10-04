@@ -65,12 +65,16 @@ void nlist_insert_first(nlist_t *list, nlist_node_t *node);
 //遍历链表
 #define nlist_for_each(node, list)      for (node = (list)->first; node; node = node->next)
 
+
+// 获取节点在父结构体中的偏移
 #define noffset_in_parent(parent_type, node_name) \
     ((char*)&(((parent_type *)0)->node_name))
 
+// 通过节点获取父结构体指针
 #define noffset_to_parent(node, parent_type, node_name) \
     ((parent_type *)((char *)(node) - noffset_in_parent(parent_type, node_name)))
 
+// 通过节点获取父结构体指针,如果节点为NULL,则返回NULL
 #define nlist_entry(node, parent_type, node_name) \
     ((node) ? noffset_to_parent((node), parent_type, node_name) : (parent_type*)0)
 

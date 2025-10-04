@@ -10,6 +10,8 @@
 #define DBG_NETIF  DBG_LEVEL_INFO
 #define DBG_ETHER  DBG_LEVEL_INFO
 #define DGB_TOOLS  DBG_LEVEL_INFO
+#define DBG_TIMER  DBG_LEVEL_INFO
+
 
 #define NET_ENDIAN_LITTLE  1 // 大小端模式
 
@@ -31,5 +33,9 @@
 #define NETIF_QUTO_SIZE  50 // 网络接口队列大小
 #define NETITF_DEV_CNT   20 // 网络接口设备数量
 #define ETHER_DATA_MINSIZE 46 // 以太网数据最小长度
+
+
+#define TIMER_NAME_SIZE 32 //定时器名称大小
+
 
 #endif
