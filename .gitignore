@@ -69,5 +69,6 @@ CMakeFiles/
 cmake_install.cmake
 
 #counter
-./VSCodeCounter
+# VSCodeCounter
+.VSCodeCounter/
 
