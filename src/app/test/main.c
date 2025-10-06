@@ -14,7 +14,7 @@
 #include "nlist.h"
 #include "mblock.h"
 #include "pktbuf.h"
-#include "netif.h"
+#include "netif.h"                                                   
 #include "ether.h"
 #include "tools.h"
 #include "timer.h"
@@ -23,7 +23,7 @@ static sys_sem_t sem;
 static sys_mutex_t mutex;
 static char buffer[100]; //实现环形缓冲区
 int write_index, read_index;
-static sys_sem_t read_sem;
+static sys_sem_t read_sem;                                                     
 static sys_sem_t write_sem;
 
 
@@ -300,20 +300,17 @@ void timer_test()
 {
     static net_timer_t t0,t1,t2,t3;
     net_timer_add(&t0, "t0", timer0_proc,(void*)0, 200, 0);
-    net_timer_add(&t3, "t3", timer3_proc,(void*)0, 4000, NET_TIMER_RELOAD);
-    net_timer_add(&t1, "t1", timer1_proc,(void*)0, 1000, NET_TIMER_RELOAD);
-    net_timer_add(&t2, "t2", timer2_proc,(void*)0, 1000, NET_TIMER_RELOAD);
+    net_timer_add(&t1, "t1", timer3_proc,(void*)0, 1000, NET_TIMER_RELOAD);
+    net_timer_add(&t2, "t2", timer1_proc,(void*)0, 1000, NET_TIMER_RELOAD);
+    net_timer_add(&t3, "t3", timer2_proc,(void*)0, 4000, NET_TIMER_RELOAD);
    
-  
-
+    net_timer_remove(&t0);
 }
 
 void basic_test(void){
     nlist_test();
     mblock_test();
     pktbuf_test();
-    netif_init();
-    loop_init();
     uint32_t v1 = x_ntohl(0x12345678);
     uint16_t v2 = x_ntohs(0x1234);
 
@@ -355,10 +352,10 @@ int main (int argc, char *argv[]) {
     dbg_error(DBG_TEST, "error");
 
     dbg_assert(1 == 1, "failed");
-    basic_test();
 
      /*协议栈的初始化*/
     net_init();  // 初始化网络协议栈
+    basic_test();  // 基础测试
     netdev_init(); // 初始化网卡驱动
     net_start(); // 启动网络协议栈
     while(1){

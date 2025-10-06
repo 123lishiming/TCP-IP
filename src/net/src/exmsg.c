@@ -3,6 +3,7 @@
 #include "dbg.h"
 #include "fixq.h"
 #include "mblock.h"
+#include "timer.h"
 static  void *msg_tbl[EXMSG_MSG_CNT];
 static fixq_t msg_queue; // 消息队列
 
@@ -81,19 +82,26 @@ static net_err_t do_netif_in(exmsg_t * msg)
 static void exmsg_thread_entry(void *arg)
 {
     dbg_info(DBG_MSG, "exmsg is runing.....\n");
+    net_time_t time;
+    sys_time_curr(&time);
     while(1){
-        exmsg_t *msg = (exmsg_t *)fixq_recv(&msg_queue, 0); // 从输入队列中接收消息
-        dbg_info(DBG_MSG, "recv a msg %p: %d\n", msg, msg->type);
-        switch (msg->type)
-        {
-        case NET_EXMSG_NETIF_IN:
-            do_netif_in(msg);
-            break;
-        
-        default:
-            break;
+        int first_tmo = net_timer_first_tmo();
+        exmsg_t *msg = (exmsg_t *)fixq_recv(&msg_queue, first_tmo); // 从输入队列中接收消息
+        if(msg){
+             dbg_info(DBG_MSG, "recv a msg %p: %d\n", msg, msg->type);
+                switch (msg->type)
+                {
+                case NET_EXMSG_NETIF_IN:
+                    do_netif_in(msg);
+                    break;
+                
+                default:
+                    break;
+                }
+                mblock_free(&msg_mblock, msg); // 释放消息内存块
         }
-        mblock_free(&msg_mblock, msg); // 释放消息内存块
+        int diff_ms = sys_time_goes(&time);
+        net_timer_check_two(diff_ms);
     }
 }
 //线程启动函数

@@ -2,6 +2,10 @@
 #define __SYS_H__
 #include "sys_plat.h"
 
+
+void sys_time_curr (net_time_t * time); //获取当前时间
+int sys_time_goes (net_time_t * pre);
+
 sys_sem_t sys_sem_create(int init_count);
 void sys_sem_free(sys_sem_t sem);
 int sys_sem_wait(sys_sem_t sem, uint32_t ms);
