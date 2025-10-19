@@ -294,7 +294,7 @@ net_err_t netif_out(netif_t *netif, ipaddr_t *ipaddr, pktbuf_t *buf)
     // 发送数据包到输出队列
     if(netif->link_layer)
     {
-        net_err_t err = ether_raw_out(netif, NET_PROTOCOL_ARP,ether_board_cast_addr(), buf);
+        net_err_t err = netif->link_layer->out(netif, ipaddr, buf);
         if(err < 0){
             dbg_warning(DBG_NETIF, "netif link out err");
             return err;

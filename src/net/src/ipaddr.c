@@ -53,3 +53,25 @@ ipaddr_t *ipaddr_get_any(void) // 获取任意地址
     static const ipaddr_t ipaddr_any = {.type = IPADDR_V4, .q_addr = 0}; // 定义任意地址
     return (ipaddr_t *)&ipaddr_any; // 返回任意地址
 }
+
+
+net_err_t ipaddr_is_equal(const ipaddr_t * ipaddr_1, const ipaddr_t * ipaddr_2)
+{
+    return ipaddr_1->q_addr == ipaddr_2->q_addr;
+}
+
+
+
+/**
+ * @brief 将IP地址写入缓冲区
+ * 
+ * @param src      网卡IP地址
+ * @param in_buf   目标IP地址
+ * @return net_err_t  错误码
+ * @note 实现IP地址到缓冲区的转换
+ * @warning  注意网络字节序
+ */
+net_err_t ipaddr_to_buf(const ipaddr_t *src, uint8_t * in_buf)
+{
+    return *(uint32_t *)in_buf = src->q_addr;
+}

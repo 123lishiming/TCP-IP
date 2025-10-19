@@ -10,6 +10,9 @@
     <ClCompile Include="D:\start\src\app\test\main.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="D:\start\src\net\src\arp.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="D:\start\src\net\src\dbg.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -67,6 +70,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="D:\start\src\app\echo\tcp_echo_server.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\start\src\net\net\arp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="D:\start\src\net\net\dbg.h">

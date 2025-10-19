@@ -87,7 +87,15 @@ net_err_t ether_in(struct _netif_t *netif, pktbuf_t * buf)
 // 输出数据包
 net_err_t ether_out(struct _netif_t *netif,ipaddr_t *dest, pktbuf_t *buf)
 {
+    // 判断是否相等，相等则发送ipv4
+    if(ipaddr_is_equal(&netif->ipaddr, dest) == 1){
+        return ether_raw_out(netif,NET_PROTOCOL_IPv4, (const uint8_t *)dest, buf);
+    }
+    // 不相等，发送arp包等待确认
+    arp_make_request(netif, dest);
     return NET_ERR_OK;
+
+   
 }
 
 

@@ -8,6 +8,7 @@
 #include "ether.h"D
 #include "tools.h"
 #include "timer.h"
+#include "arp.h"
 // 网络协议栈初始化
 net_err_t net_init(void) {
     dbg_info(DBG_INIT, "Initializing network stack...\n");
@@ -19,6 +20,7 @@ net_err_t net_init(void) {
     net_timer_init(); //初始化定时器
     loop_init(); // 初始化环回接口
     ether_init(); // 初始化以太网接口
+    arp_init();
 
     
     return NET_ERR_OK;

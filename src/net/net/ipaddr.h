@@ -15,10 +15,12 @@ typedef struct _ipaddr_t {
         uint8_t addr[IPV4_ADDR_SIZE]; // 4个字节表示的IP地址
     };
 } ipaddr_t;
-void ipaddr_set_any(ipaddr_t *ip); // 设置为任意地址
-net_err_t ipaddr_from_str(ipaddr_t *dest, const char *str);
+void ipaddr_set_any(ipaddr_t *ip);                            // 设置为任意地址
+net_err_t ipaddr_from_str(ipaddr_t *dest, const char *str);   // 从字符串解析IP地址
 // net_err_t ipaddr_to_str(ipaddr_t *ip, char *str, int len); // 将IP地址转换为字符串
-void ipaddr_copy(ipaddr_t *dest, const ipaddr_t *src); // 复制IP地址     
-ipaddr_t *ipaddr_get_any(void); // 获取任意地址
+void ipaddr_copy(ipaddr_t *dest, const ipaddr_t *src);        // 复制IP地址     
+ipaddr_t *ipaddr_get_any(void);                               // 获取任意地址
+net_err_t ipaddr_is_equal(const ipaddr_t * ipaddr_1, const ipaddr_t * ipaddr_2);   //判断ip是否相等
+net_err_t ipaddr_to_buf(const ipaddr_t *src, uint8_t * in_buf); // 将IP地址写入缓冲区
 #endif // ! __IPADDR_H__
 

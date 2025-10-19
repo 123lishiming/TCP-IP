@@ -250,3 +250,43 @@ static net_err_t netif_pcap_open(struct _netif_t *netif, void *data) {
 #define PKTBUF_BLK_SIZE  128 // 数据块大小如果数据块太小，那么数据包可能不是连续的
 
 
+## 发送ARP数据包时发现目的地址跟自己的不一样
+![alt text](/docs/image.png)
+
+我设置的目的地址时192.168.239.3 结果wireshirk捕获到是0.0.192.168
+
+### 问题所在
+我再结构体初始化的时候将数组的大小设置错误，从而导致没有解析到
+![原先代码](/docs/Snipaste_2025-10-19_23-27-00.png)
+
+![改正后代码](/docs/Snipaste_2025-10-19_23-27-50.png)
+
+
+### 解析ip代码
+```c
+net_err_t ipaddr_from_str(ipaddr_t *dest, const char *str)
+{
+    if(!dest || !str){
+        return NET_ERR_PARAM;
+    }
+    dest->type = IPADDR_V4; // 设置地址类型为IPv4
+    dest->q_addr = 0; // 初始化IP地址为0
+    //192.168.245.1
+    //"192" -> 192 -> dest -> a_addr[0]
+    uint8_t *p = dest -> addr;
+    char c;
+    uint8_t sub_addr = 0;
+    while((c = *str++) != '\0'){
+        // '1' -> '9'
+        if(c >= '0' && c <= '9'){
+            sub_addr = sub_addr * 10 + (c - '0'); // 将字符转换为数字
+        }else if(c == '.'){
+            *p++ = sub_addr; // 将子地址赋值给IP地址
+            sub_addr = 0;
+        }else{
+            return NET_ERR_PARAM; // 返回参数错误
+        }
+    }
+    *p = sub_addr; // 处理最后一个子地址
+}
+```

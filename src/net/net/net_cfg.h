@@ -11,7 +11,7 @@
 #define DBG_ETHER  DBG_LEVEL_INFO
 #define DGB_TOOLS  DBG_LEVEL_INFO
 #define DBG_TIMER  DBG_LEVEL_NONE
-
+#define DBG_ARP    DBG_LEVEL_INFO
 
 #define NET_ENDIAN_LITTLE  1 // 大小端模式
 
@@ -36,6 +36,6 @@
 
 
 #define TIMER_NAME_SIZE 32 //定时器名称大小
-
+#define ARP_CACHE_SIZE  50 //ARP的大小
 
 #endif

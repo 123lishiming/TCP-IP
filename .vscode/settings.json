@@ -124,7 +124,10 @@
         "thread": "c",
         "cinttypes": "c",
         "typeinfo": "c",
-        "variant": "c"
+        "variant": "c",
+        "protocol.h": "c",
+        "pktbuf.h": "c",
+        "ether.h": "c"
     },
     "C_Cpp.errorSquiggles": "Disabled",
     "C_Cpp.default.configurationProvider": "ms-vscode.makefile-tools",
