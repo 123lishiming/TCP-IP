@@ -43,6 +43,8 @@ typedef struct _arp_entry_t{
 
 
 net_err_t arp_init(void);  // arp初始化
-net_err_t arp_make_request(netif_t *netif, const ipaddr_t *dest);
+net_err_t arp_make_request(netif_t *netif, const ipaddr_t *dest);  //arp发送请求
+net_err_t arp_make_gratuitious(netif_t *netif);                    //发送免费arp请求
+net_err_t arp_in(netif_t *netif, pktbuf_t *buf);                   // arp输入处理
 
 #endif 

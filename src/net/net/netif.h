@@ -35,6 +35,8 @@ typedef struct _netif_ops_t{
 }netif_ops_t;
 
 struct _netif_t;
+
+// 链路层接口函数
 typedef struct _link_layer_t{
     netif_type_t type;
     net_err_t (*open)(struct _netif_t *netif);

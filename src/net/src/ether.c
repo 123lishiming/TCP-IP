@@ -41,7 +41,9 @@ static display_ether_pkt(char *title, ether_pkt_t *pkt, int total_size)
 // 打开
  net_err_t ether_open(struct _netif_t *netif)
  {
-    return NET_ERR_OK;
+
+    // 免费arp包的发送
+    return arp_make_gratuitious(netif);
 
  }
 
@@ -80,6 +82,22 @@ net_err_t ether_in(struct _netif_t *netif, pktbuf_t * buf)
         return err;
     }
     display_ether_pkt("ether in", pkt, buf->total_size);
+    // 识别包的类型
+    switch (x_ntohs(pkt->hdr.protocal))
+    {
+    case NET_PROTOCOL_ARP:{
+        err = pktbuf_remove_header(buf, sizeof(ether_hdr_t));  // ipv4带有包头
+        if(err < 0){
+            dbg_error(DBG_ETHER, "remove header failed\n");
+            return NET_ERR_SIZE;
+        }
+        return arp_in(netif, buf);   // 交给arp去处理
+    }
+    default:
+        dbg_warning(DBG_ETHER, "unknown packet\n");
+        return NET_ERR_UN_SUPPOT;
+        break;
+    }
     pktbuf_free(buf);
     return NET_ERR_OK;
 }

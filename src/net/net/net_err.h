@@ -13,7 +13,8 @@ typedef enum {
     NET_ERR_PARAM = -7,// Parameter error
     NET_ERR_STATA = -8,// State error
     NET_ERR_IO   = -9, // IO error
-    NET_ERR_EXIST = -10 // Already exists error
+    NET_ERR_EXIST = -10, // Already exists error
+    NET_ERR_UN_SUPPOT = -11 // unsupport error
 } net_err_t;
 
 #endif // __NET_ERR_H__
